@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Doist/bob-cli/compare/v1.1.0...v1.1.1) (2026-02-02)
+
+
+### Bug Fixes
+
+* Add URL field to package.json ([#7](https://github.com/Doist/bob-cli/issues/7)) ([60033b1](https://github.com/Doist/bob-cli/commit/60033b18cf7082a309e44a39acf65e6744cc159c))
+
 ## 1.1.0 (2026-02-02)
 
 
