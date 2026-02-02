@@ -1,27 +1,36 @@
 {
-  "name": "@doist/bob-cli",
-  "version": "0.1.0",
-  "description": "HiBob CLI",
-  "type": "module",
-  "bin": {
-    "bob": "./dist/index.js"
-  },
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "type-check": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "dependencies": {
-    "chalk": "^5.6.2",
-    "commander": "^14.0.2",
-    "yocto-spinner": "^1.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.2",
-    "typescript": "^5.9.2",
-    "vitest": "^3.0.5"
-  }
+    "name": "@doist/bob-cli",
+    "version": "1.0.0",
+    "description": "HiBob CLI",
+    "type": "module",
+    "bin": {
+        "bob": "./dist/index.js"
+    },
+    "prettier": "@doist/prettier-config",
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "check": "biome check .",
+        "check:fix": "biome check --fix .",
+        "format": "biome format --write .",
+        "lint": "biome lint .",
+        "type-check": "tsc -p tsconfig.json --noEmit",
+        "test": "vitest run"
+    },
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "dependencies": {
+        "chalk": "^5.6.2",
+        "commander": "^14.0.2",
+        "yocto-spinner": "^1.0.0"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.3.9",
+        "@doist/prettier-config": "4.0.1",
+        "@types/node": "^22.10.2",
+        "lefthook": "^1.10.10",
+        "prettier": "^3.4.2",
+        "typescript": "^5.9.2",
+        "vitest": "^3.0.5"
+    }
 }

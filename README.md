@@ -1,6 +1,6 @@
 # bob-cli
 
-HiBob CLI for querying employee directory and time off data.
+HiBob CLI for querying employee directory and who's out.
 
 ## Setup
 
@@ -33,7 +33,6 @@ bob whosout --from 2024-01-15 --to 2024-01-20
 bob outtoday
 bob outtoday --date 2024-01-15
 
-bob timeoff <id>
 ```
 
 ### Output formats
