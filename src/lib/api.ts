@@ -8,7 +8,6 @@ const SPINNER_CONFIG: Record<string, SpinnerOptions> = {
     'POST /people/': { text: 'Fetching person', color: 'blue' },
     'GET /timeoff/whosout': { text: "Fetching who's out", color: 'blue' },
     'GET /timeoff/outtoday': { text: 'Fetching out today', color: 'blue' },
-    'GET /timeoff/employees/': { text: 'Fetching time off balance', color: 'blue' },
 }
 
 function getSpinnerOptions(method: string, path: string): SpinnerOptions {

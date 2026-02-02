@@ -1,6 +1,6 @@
 export const SKILL_NAME = 'hibob'
 export const SKILL_DESCRIPTION =
-    "Query HiBob HR data: employee directory, who's out, and time off balances via the bob CLI"
+    "Query HiBob HR data: employee directory and who's out via the bob CLI"
 
 export const SKILL_CONTENT = `# HiBob CLI (bob)
 
@@ -13,7 +13,6 @@ Use this skill when the user wants to query HiBob HR data.
 - \`bob person <id>\` - View a single employee
 - \`bob whosout\` - Who is out of office
 - \`bob outtoday\` - Who is out today
-- \`bob timeoff <id>\` - Time off balance for an employee
 - \`bob skill list\` - List supported agents
 
 ## Output Formats
@@ -31,6 +30,5 @@ bob people "Ava" --department "Engineering"
 bob person 12345
 bob whosout --from 2024-01-15 --to 2024-01-20
 bob outtoday --date 2024-01-15
-bob timeoff 12345 --json
 \`\`\`
 `

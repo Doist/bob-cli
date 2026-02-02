@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { apiGet } from '../lib/api.js'
-import { type OutputOptions, outputItem, outputList } from '../lib/output.js'
+import { type OutputOptions, outputList } from '../lib/output.js'
 
 interface DateRangeOptions extends OutputOptions {
     from?: string
@@ -126,43 +126,6 @@ function renderTimeoffRow(entry: Record<string, unknown>): string {
     return [chalk.bold(name), details.join('  ')].filter(Boolean).join('  ')
 }
 
-function renderTimeoffBalance(entry: Record<string, unknown>): string {
-    const lines: string[] = []
-    const name = getDisplayName(entry)
-    if (name !== 'Unknown') {
-        lines.push(chalk.bold(name))
-        lines.push('')
-    }
-
-    const balances = entry.balances
-    if (Array.isArray(balances) && balances.length > 0) {
-        for (const balance of balances) {
-            if (!balance || typeof balance !== 'object') continue
-            const record = balance as Record<string, unknown>
-            const label =
-                (record.policyType as string | undefined) ||
-                (record.type as string | undefined) ||
-                (record.name as string | undefined) ||
-                'Balance'
-            const amount =
-                (record.balance as string | number | undefined) ||
-                (record.amount as string | number | undefined) ||
-                (record.days as string | number | undefined) ||
-                (record.hours as string | number | undefined)
-
-            if (amount !== undefined) {
-                lines.push(`${label}: ${amount}`)
-            }
-        }
-    }
-
-    if (lines.length === 0) {
-        lines.push(JSON.stringify(entry, null, 2))
-    }
-
-    return lines.join('\n')
-}
-
 async function listWhosOut(options: DateRangeOptions): Promise<void> {
     const params = new URLSearchParams()
     if (options.from) params.set('from', options.from)
@@ -180,15 +143,6 @@ async function listOutToday(options: DateRangeOptions): Promise<void> {
     const response = await apiGet(path)
     const entries = extractTimeoffList(response)
     outputList(entries, options, 'timeoff', renderTimeoffRow)
-}
-
-async function getTimeoffBalance(id: string, options: OutputOptions): Promise<void> {
-    const response = await apiGet(`/timeoff/employees/${id}/balance`)
-    const entry =
-        response && typeof response === 'object'
-            ? (response as Record<string, unknown>)
-            : { value: response }
-    outputItem(entry, options, 'timeoff', renderTimeoffBalance)
 }
 
 export function registerTimeoffCommand(program: Command): void {
@@ -210,13 +164,4 @@ export function registerTimeoffCommand(program: Command): void {
         .option('--ndjson', 'NDJSON output (essential fields)')
         .option('--full', 'Include all fields in JSON output')
         .action((options: DateRangeOptions) => listOutToday(options))
-
-    program
-        .command('timeoff')
-        .description('Time off balance for an employee')
-        .argument('<id>', 'Employee id')
-        .option('--json', 'JSON output (essential fields)')
-        .option('--ndjson', 'NDJSON output (essential fields)')
-        .option('--full', 'Include all fields in JSON output')
-        .action((id: string, options: OutputOptions) => getTimeoffBalance(id, options))
 }
