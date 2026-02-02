@@ -20,6 +20,7 @@ function getNestedString(value: unknown, path: string[]): string | undefined {
 
 function getDisplayName(entry: Record<string, unknown>): string {
     const nameFields = [
+        entry.employeeDisplayName,
         entry.displayName,
         entry.name,
         entry.employeeName,
@@ -32,20 +33,9 @@ function getDisplayName(entry: Record<string, unknown>): string {
     return 'Unknown'
 }
 
-function getEmail(entry: Record<string, unknown>): string {
-    const emailFields = [
-        entry.email,
-        entry.employeeEmail,
-        getNestedString(entry, ['employee', 'email']),
-    ]
-    for (const candidate of emailFields) {
-        if (typeof candidate === 'string' && candidate.length > 0) return candidate
-    }
-    return ''
-}
-
 function getType(entry: Record<string, unknown>): string {
     const typeFields = [
+        entry.policyTypeDisplayName,
         entry.type,
         entry.policyType,
         entry.timeOffType,
@@ -114,16 +104,24 @@ function extractTimeoffList(data: unknown): Record<string, unknown>[] {
 
 function renderTimeoffRow(entry: Record<string, unknown>): string {
     const name = getDisplayName(entry)
-    const email = getEmail(entry)
     const type = getType(entry)
     const dates = formatDateRange(entry)
 
     const details: string[] = []
-    if (email) details.push(chalk.dim(email))
     if (type) details.push(chalk.cyan(type))
     if (dates) details.push(chalk.yellow(dates))
 
     return [chalk.bold(name), details.join('  ')].filter(Boolean).join('  ')
+}
+
+function renderTimeoffList(entries: Record<string, unknown>[]): string {
+    const lines: string[] = []
+    lines.push(chalk.dim(`${entries.length} people out`))
+    lines.push('')
+    for (const entry of entries) {
+        lines.push(renderTimeoffRow(entry))
+    }
+    return lines.join('\n')
 }
 
 async function listWhosOut(options: DateRangeOptions): Promise<void> {
@@ -133,7 +131,11 @@ async function listWhosOut(options: DateRangeOptions): Promise<void> {
     const path = params.toString() ? `/timeoff/whosout?${params.toString()}` : '/timeoff/whosout'
     const response = await apiGet(path)
     const entries = extractTimeoffList(response)
-    outputList(entries, options, 'timeoff', renderTimeoffRow)
+    if (options.json || options.ndjson) {
+        outputList(entries, options, 'timeoff')
+    } else {
+        console.log(renderTimeoffList(entries))
+    }
 }
 
 async function listOutToday(options: DateRangeOptions): Promise<void> {
@@ -142,7 +144,11 @@ async function listOutToday(options: DateRangeOptions): Promise<void> {
     const path = params.toString() ? `/timeoff/outtoday?${params.toString()}` : '/timeoff/outtoday'
     const response = await apiGet(path)
     const entries = extractTimeoffList(response)
-    outputList(entries, options, 'timeoff', renderTimeoffRow)
+    if (options.json || options.ndjson) {
+        outputList(entries, options, 'timeoff')
+    } else {
+        console.log(renderTimeoffList(entries))
+    }
 }
 
 export function registerTimeoffCommand(program: Command): void {

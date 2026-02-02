@@ -14,8 +14,11 @@ const PERSON_ESSENTIAL_FIELDS = [
 const TIMEOFF_ESSENTIAL_FIELDS = [
     'id',
     'employeeId',
+    'employeeDisplayName',
     'displayName',
+    'employeeEmail',
     'email',
+    'policyTypeDisplayName',
     'type',
     'policyType',
     'status',
