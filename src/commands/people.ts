@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { apiPost } from '../lib/api.js'
-import { formatError, outputItem, outputList, type OutputOptions } from '../lib/output.js'
+import { formatError, type OutputOptions, outputItem, outputList } from '../lib/output.js'
 
 interface PeopleOptions extends OutputOptions {
     department?: string
@@ -96,12 +96,7 @@ function extractPeopleList(data: unknown): Record<string, unknown>[] {
     if (Array.isArray(data)) return data as Record<string, unknown>[]
     if (!data || typeof data !== 'object') return []
     const record = data as Record<string, unknown>
-    const candidates = [
-        record.employees,
-        record.people,
-        record.results,
-        record.items,
-    ]
+    const candidates = [record.employees, record.people, record.results, record.items]
     for (const candidate of candidates) {
         if (Array.isArray(candidate)) {
             return candidate as Record<string, unknown>[]

@@ -1,5 +1,5 @@
 import { getAuthHeader } from './auth.js'
-import { withSpinner, type SpinnerOptions } from './spinner.js'
+import { type SpinnerOptions, withSpinner } from './spinner.js'
 
 const BASE_URL = 'https://api.hibob.com/v1'
 

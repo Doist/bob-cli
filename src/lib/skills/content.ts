@@ -1,6 +1,6 @@
 export const SKILL_NAME = 'hibob'
 export const SKILL_DESCRIPTION =
-    'Query HiBob HR data: employee directory, who\'s out, and time off balances via the bob CLI'
+    "Query HiBob HR data: employee directory, who's out, and time off balances via the bob CLI"
 
 export const SKILL_CONTENT = `# HiBob CLI (bob)
 

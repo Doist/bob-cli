@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { apiGet } from '../lib/api.js'
-import { outputItem, outputList, type OutputOptions } from '../lib/output.js'
+import { type OutputOptions, outputItem, outputList } from '../lib/output.js'
 
 interface DateRangeOptions extends OutputOptions {
     from?: string
@@ -9,10 +9,7 @@ interface DateRangeOptions extends OutputOptions {
     date?: string
 }
 
-function getNestedString(
-    value: unknown,
-    path: string[],
-): string | undefined {
+function getNestedString(value: unknown, path: string[]): string | undefined {
     let current: unknown = value
     for (const key of path) {
         if (!current || typeof current !== 'object') return undefined
