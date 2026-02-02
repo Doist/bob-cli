@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/Doist/bob-cli/compare/v1.1.1...v1.1.2) (2026-02-02)
+
+
+### Bug Fixes
+
+* Add proper repository field ([#9](https://github.com/Doist/bob-cli/issues/9)) ([306e2cc](https://github.com/Doist/bob-cli/commit/306e2ccf63f734d988bfaa488278db4876151994))
+
 ## [1.1.1](https://github.com/Doist/bob-cli/compare/v1.1.0...v1.1.1) (2026-02-02)
 
 
