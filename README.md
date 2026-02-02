@@ -14,6 +14,12 @@ export HIBOB_API_TOKEN="your-api-token"
 ## Install
 
 ```bash
+npm install -g @doist/bob-cli
+```
+
+## Local development
+
+```bash
 npm install
 npm run build
 npm link
@@ -45,10 +51,20 @@ All list commands support:
 
 ### Skills
 
+#### Install skills for Claude
+
+```bash
+bob skill install claude-code
+```
+
+#### Install skills for Codex
+
+```bash
+bob skill install codex
+```
+
 ```bash
 bob skill list
-bob skill install claude-code
-bob skill install codex
 bob skill install cursor
 bob skill uninstall codex
 ```
