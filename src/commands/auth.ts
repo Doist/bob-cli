@@ -1,14 +1,24 @@
 import { createInterface } from 'node:readline'
+import { Writable } from 'node:stream'
 import chalk from 'chalk'
 import type { Command } from 'commander'
 import { getAuthSourceAsync } from '../lib/auth.js'
 import { deleteConfig, getConfigPath, writeConfig } from '../lib/config.js'
 
-function prompt(question: string): Promise<string> {
-    const rl = createInterface({ input: process.stdin, output: process.stdout })
+function prompt(question: string, hidden = false): Promise<string> {
+    const output = hidden
+        ? new Writable({
+              write(_chunk, _encoding, callback) {
+                  callback()
+              },
+          })
+        : process.stdout
+    const rl = createInterface({ input: process.stdin, output, terminal: true })
+    if (hidden) process.stdout.write(question)
     return new Promise((resolve) => {
-        rl.question(question, (answer) => {
+        rl.question(hidden ? '' : question, (answer) => {
             rl.close()
+            if (hidden) process.stdout.write('\n')
             resolve(answer.trim())
         })
     })
@@ -24,7 +34,7 @@ async function login(): Promise<void> {
         process.exit(1)
     }
 
-    const apiToken = await prompt('API Token: ')
+    const apiToken = await prompt('API Token: ', true)
     if (!apiToken) {
         console.error(chalk.red('API Token cannot be empty.'))
         process.exit(1)
