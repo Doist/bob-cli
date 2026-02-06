@@ -1,29 +1,75 @@
+import { readConfig } from './config.js'
+
 const SERVICE_ID_ENV = 'HIBOB_SERVICE_ID'
 const API_TOKEN_ENV = 'HIBOB_API_TOKEN'
 
-export function getServiceId(): string {
-    const serviceId = process.env[SERVICE_ID_ENV]
-    if (!serviceId) {
-        throw new Error(
-            `Missing ${SERVICE_ID_ENV}. Set ${SERVICE_ID_ENV} and ${API_TOKEN_ENV} environment variables.`,
-        )
-    }
-    return serviceId
+const AUTH_HINT = `Set ${SERVICE_ID_ENV} and ${API_TOKEN_ENV} environment variables, or run: bob auth login`
+
+export async function getServiceId(): Promise<string> {
+    const envValue = process.env[SERVICE_ID_ENV]
+    if (envValue) return envValue
+
+    const config = await readConfig()
+    if (config?.service_id) return config.service_id
+
+    throw new Error(`Missing service ID. ${AUTH_HINT}`)
 }
 
-export function getApiToken(): string {
-    const token = process.env[API_TOKEN_ENV]
-    if (!token) {
-        throw new Error(
-            `Missing ${API_TOKEN_ENV}. Set ${SERVICE_ID_ENV} and ${API_TOKEN_ENV} environment variables.`,
-        )
-    }
-    return token
+export async function getApiToken(): Promise<string> {
+    const envValue = process.env[API_TOKEN_ENV]
+    if (envValue) return envValue
+
+    const config = await readConfig()
+    if (config?.api_token) return config.api_token
+
+    throw new Error(`Missing API token. ${AUTH_HINT}`)
 }
 
-export function getAuthHeader(): string {
-    const serviceId = getServiceId()
-    const token = getApiToken()
+export async function getAuthHeader(): Promise<string> {
+    const envServiceId = process.env[SERVICE_ID_ENV]
+    const envApiToken = process.env[API_TOKEN_ENV]
+
+    if (envServiceId && envApiToken) {
+        const encoded = Buffer.from(`${envServiceId}:${envApiToken}`).toString('base64')
+        return `Basic ${encoded}`
+    }
+
+    const config = await readConfig()
+    const serviceId = envServiceId || config?.service_id
+    const token = envApiToken || config?.api_token
+
+    if (!serviceId) throw new Error(`Missing service ID. ${AUTH_HINT}`)
+    if (!token) throw new Error(`Missing API token. ${AUTH_HINT}`)
+
     const encoded = Buffer.from(`${serviceId}:${token}`).toString('base64')
     return `Basic ${encoded}`
+}
+
+export type AuthSource = 'env' | 'config' | 'none'
+
+export function getAuthSource(): { serviceId: AuthSource; apiToken: AuthSource } {
+    const hasEnvServiceId = Boolean(process.env[SERVICE_ID_ENV])
+    const hasEnvApiToken = Boolean(process.env[API_TOKEN_ENV])
+
+    return {
+        serviceId: hasEnvServiceId ? 'env' : 'none',
+        apiToken: hasEnvApiToken ? 'env' : 'none',
+    }
+}
+
+export async function getAuthSourceAsync(): Promise<{
+    serviceId: AuthSource
+    apiToken: AuthSource
+}> {
+    const result = getAuthSource()
+
+    if (result.serviceId === 'none' || result.apiToken === 'none') {
+        const config = await readConfig()
+        if (config) {
+            if (result.serviceId === 'none' && config.service_id) result.serviceId = 'config'
+            if (result.apiToken === 'none' && config.api_token) result.apiToken = 'config'
+        }
+    }
+
+    return result
 }

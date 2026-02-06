@@ -73,7 +73,7 @@ export function buildUrl(path: string): URL {
 async function request<T>(method: string, path: string, body?: object): Promise<T> {
     const url = buildUrl(path)
     const headers: Record<string, string> = {
-        Authorization: getAuthHeader(),
+        Authorization: await getAuthHeader(),
         Accept: 'application/json',
     }
 

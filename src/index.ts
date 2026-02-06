@@ -2,6 +2,7 @@
 
 import { program } from 'commander'
 import packageJson from '../package.json' with { type: 'json' }
+import { registerAuthCommand } from './commands/auth.js'
 import { registerPeopleCommand } from './commands/people.js'
 import { registerSkillCommand } from './commands/skill.js'
 import { registerTimeoffCommand } from './commands/timeoff.js'
@@ -19,6 +20,7 @@ Note for AI/LLM agents:
   Default JSON shows essential fields; use --full for all fields.`,
     )
 
+registerAuthCommand(program)
 registerPeopleCommand(program)
 registerTimeoffCommand(program)
 registerSkillCommand(program)
