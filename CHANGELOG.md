@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Doist/bob-cli/compare/v1.1.2...v1.2.0) (2026-02-06)
+
+
+### Features
+
+* Add auth config file with login/status/logout commands ([#11](https://github.com/Doist/bob-cli/issues/11)) ([222c7ae](https://github.com/Doist/bob-cli/commit/222c7ae2069de917959a8b5f6e1da48872cd979b))
+
 ## [1.1.2](https://github.com/Doist/bob-cli/compare/v1.1.1...v1.1.2) (2026-02-02)
 
 
