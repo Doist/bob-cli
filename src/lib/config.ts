@@ -23,22 +23,31 @@ export async function readConfig(): Promise<Config | null> {
             return config
         }
         return null
-    } catch {
-        return null
+    } catch (error) {
+        const code = (error as NodeJS.ErrnoException)?.code
+        if (code === 'ENOENT' || error instanceof SyntaxError) {
+            return null
+        }
+        throw error
     }
 }
 
 export async function writeConfig(serviceId: string, apiToken: string): Promise<void> {
     const path = configPath()
-    await mkdir(dirname(path), { recursive: true })
+    await mkdir(dirname(path), { recursive: true, mode: 0o700 })
     const config: Config = { service_id: serviceId, api_token: apiToken }
-    await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, 'utf-8')
+    await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, {
+        encoding: 'utf-8',
+        mode: 0o600,
+    })
 }
 
 export async function deleteConfig(): Promise<void> {
     try {
         await rm(configPath())
-    } catch {
-        // Already gone, that's fine
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException)?.code !== 'ENOENT') {
+            throw error
+        }
     }
 }

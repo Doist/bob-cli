@@ -26,8 +26,21 @@ export async function getApiToken(): Promise<string> {
 }
 
 export async function getAuthHeader(): Promise<string> {
-    const serviceId = await getServiceId()
-    const token = await getApiToken()
+    const envServiceId = process.env[SERVICE_ID_ENV]
+    const envApiToken = process.env[API_TOKEN_ENV]
+
+    if (envServiceId && envApiToken) {
+        const encoded = Buffer.from(`${envServiceId}:${envApiToken}`).toString('base64')
+        return `Basic ${encoded}`
+    }
+
+    const config = await readConfig()
+    const serviceId = envServiceId || config?.service_id
+    const token = envApiToken || config?.api_token
+
+    if (!serviceId) throw new Error(`Missing service ID. ${AUTH_HINT}`)
+    if (!token) throw new Error(`Missing API token. ${AUTH_HINT}`)
+
     const encoded = Buffer.from(`${serviceId}:${token}`).toString('base64')
     return `Basic ${encoded}`
 }

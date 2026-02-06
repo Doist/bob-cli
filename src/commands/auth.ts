@@ -2,7 +2,7 @@ import { createInterface } from 'node:readline'
 import { Writable } from 'node:stream'
 import chalk from 'chalk'
 import type { Command } from 'commander'
-import { getAuthSourceAsync } from '../lib/auth.js'
+import { type AuthSource, getAuthSourceAsync } from '../lib/auth.js'
 import { deleteConfig, getConfigPath, writeConfig } from '../lib/config.js'
 
 function prompt(question: string, hidden = false): Promise<string> {
@@ -24,20 +24,24 @@ function prompt(question: string, hidden = false): Promise<string> {
     })
 }
 
+function sourceLabel(source: AuthSource): string {
+    if (source === 'env') return 'environment variable'
+    if (source === 'config') return 'config file'
+    return 'not set'
+}
+
 async function login(): Promise<void> {
     console.log('Enter your HiBob service user credentials.')
     console.log('You can find these in HiBob under Settings > Integrations > Service Users.\n')
 
     const serviceId = await prompt('Service ID: ')
     if (!serviceId) {
-        console.error(chalk.red('Service ID cannot be empty.'))
-        process.exit(1)
+        throw new Error('Service ID cannot be empty.')
     }
 
     const apiToken = await prompt('API Token: ', true)
     if (!apiToken) {
-        console.error(chalk.red('API Token cannot be empty.'))
-        process.exit(1)
+        throw new Error('API Token cannot be empty.')
     }
 
     await writeConfig(serviceId, apiToken)
@@ -55,10 +59,8 @@ async function status(): Promise<void> {
         return
     }
 
-    const label = (source: string) => (source === 'env' ? 'environment variable' : 'config file')
-
-    console.log(`Service ID: ${label(sources.serviceId)}`)
-    console.log(`API Token:  ${label(sources.apiToken)}`)
+    console.log(`Service ID: ${sourceLabel(sources.serviceId)}`)
+    console.log(`API Token:  ${sourceLabel(sources.apiToken)}`)
 
     if (sources.serviceId === 'none') {
         console.log(chalk.yellow('\nWarning: Service ID is not configured.'))

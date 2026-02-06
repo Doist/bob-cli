@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { chmod, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -19,7 +19,7 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-    await rm(tempDir, { recursive: true })
+    await rm(tempDir, { recursive: true, force: true })
     vi.restoreAllMocks()
 })
 
@@ -42,6 +42,13 @@ describe('writeConfig + readConfig', () => {
         expect(raw).toMatch(/^\{/)
         expect(raw.endsWith('\n')).toBe(true)
         expect(JSON.parse(raw)).toEqual({ service_id: 'svc', api_token: 'tok' })
+    })
+
+    it('writes file with restricted permissions', async () => {
+        await writeConfig('svc', 'tok')
+        const fileStat = await stat(getConfigPath())
+        const mode = fileStat.mode & 0o777
+        expect(mode).toBe(0o600)
     })
 })
 
@@ -69,6 +76,12 @@ describe('readConfig', () => {
         await writeFile(configPath, JSON.stringify({ service_id: '', api_token: '' }), 'utf-8')
         const config = await readConfig()
         expect(config).toBeNull()
+    })
+
+    it('throws on permission errors', async () => {
+        await writeConfig('svc', 'tok')
+        await chmod(getConfigPath(), 0o000)
+        await expect(readConfig()).rejects.toThrow()
     })
 })
 
