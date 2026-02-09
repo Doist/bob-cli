@@ -183,12 +183,72 @@ async function listPeople(query: string | undefined, options: PeopleOptions): Pr
     outputList(people, options, 'person', renderPersonRow)
 }
 
-async function viewPerson(id: string, options: OutputOptions): Promise<void> {
-    if (!id) {
-        throw new Error(formatError('MISSING_ID', 'Person id is required.'))
+function isIdRef(ref: string): boolean {
+    return ref.startsWith('id:')
+}
+
+function extractId(ref: string): string {
+    return ref.slice(3)
+}
+
+async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
+    if (isIdRef(ref)) {
+        const response = await apiPost(`/people/${extractId(ref)}`, {})
+        return extractPerson(response)
     }
-    const response = await apiPost(`/people/${id}`)
-    const person = extractPerson(response)
+
+    if (ref.includes('@')) {
+        const response = await apiPost(`/people/${ref}`, {})
+        return extractPerson(response)
+    }
+
+    const response = await apiPost('/people/search', {})
+    const people = extractPeopleList(response).filter((p) => isActive(p) !== false)
+    const lower = ref.toLowerCase()
+
+    const exact = people.find((p) => getDisplayName(p).toLowerCase() === lower)
+    if (exact) {
+        const id = exact.id
+        if (typeof id === 'string' && id) {
+            const detail = await apiPost(`/people/${id}`, {})
+            return extractPerson(detail)
+        }
+        return exact
+    }
+
+    const partial = people.filter((p) => getDisplayName(p).toLowerCase().includes(lower))
+    if (partial.length === 1) {
+        const id = partial[0].id
+        if (typeof id === 'string' && id) {
+            const detail = await apiPost(`/people/${id}`, {})
+            return extractPerson(detail)
+        }
+        return partial[0]
+    }
+    if (partial.length > 1) {
+        throw new Error(
+            formatError(
+                'AMBIGUOUS_PERSON',
+                `Multiple people match "${ref}":`,
+                partial.slice(0, 5).map((p) => `"${getDisplayName(p)}" (id:${p.id})`),
+            ),
+        )
+    }
+
+    throw new Error(
+        formatError('PERSON_NOT_FOUND', `Person "${ref}" not found.`, [
+            'To look up by ID, use id:xxx format (e.g., id:12345)',
+        ]),
+    )
+}
+
+async function viewPerson(ref: string, options: OutputOptions): Promise<void> {
+    if (!ref) {
+        throw new Error(
+            formatError('MISSING_REF', 'Person ref is required (name, email, or id:xxx).'),
+        )
+    }
+    const person = await resolvePersonRef(ref)
     outputItem(person, options, 'person', renderPersonView)
 }
 
@@ -207,10 +267,20 @@ export function registerPeopleCommand(program: Command): void {
     program
         .command('person')
         .description('View a single employee')
-        .argument('<id>', 'Employee id')
+        .argument('<ref>', 'Name, email, or id:xxx')
         .option('--json', 'JSON output (essential fields)')
         .option('--ndjson', 'NDJSON output (essential fields)')
         .option('--full', 'Include all fields in JSON output')
+        .addHelpText(
+            'after',
+            `
+Ref formats:
+  id:xxx       Direct lookup by HiBob employee ID (exact, fastest)
+  user@co.com  Direct lookup by email address
+  "Jane Doe"   Name search (exact match preferred, partial if unambiguous)
+
+Use "bob people" to list employees and find id:xxx values.`,
+        )
         .action((id: string, options: OutputOptions) => viewPerson(id, options))
 
     people.addHelpText(
