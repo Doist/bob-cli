@@ -187,7 +187,7 @@ function isIdRef(ref: string): boolean {
     return ref.startsWith('id:')
 }
 
-function extractId(ref: string): string {
+function removeIdPrefix(ref: string): string {
     return ref.slice(3)
 }
 
@@ -203,9 +203,10 @@ async function fetchPersonByIdentifier(id: string): Promise<Record<string, unkno
 
 async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
     if (isIdRef(ref)) {
-        return fetchPersonByIdentifier(extractId(ref))
+        return fetchPersonByIdentifier(removeIdPrefix(ref))
     }
 
+    // HiBob API accepts email as an identifier in /people/{identifier}
     if (ref.includes('@')) {
         return fetchPersonByIdentifier(ref)
     }
