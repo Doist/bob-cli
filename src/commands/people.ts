@@ -191,15 +191,27 @@ function extractId(ref: string): string {
     return ref.slice(3)
 }
 
+function looksLikeRawId(ref: string): boolean {
+    if (ref.includes(' ')) return false
+    return /^\d+$/.test(ref)
+}
+
+async function fetchPersonById(id: string): Promise<Record<string, unknown>> {
+    const response = await apiPost(`/people/${id}`, {})
+    return extractPerson(response)
+}
+
 async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
     if (isIdRef(ref)) {
-        const response = await apiPost(`/people/${extractId(ref)}`, {})
-        return extractPerson(response)
+        return fetchPersonById(extractId(ref))
     }
 
     if (ref.includes('@')) {
-        const response = await apiPost(`/people/${ref}`, {})
-        return extractPerson(response)
+        return fetchPersonById(ref)
+    }
+
+    if (looksLikeRawId(ref)) {
+        return fetchPersonById(ref)
     }
 
     const response = await apiPost('/people/search', {})
@@ -209,20 +221,14 @@ async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
     const exact = people.find((p) => getDisplayName(p).toLowerCase() === lower)
     if (exact) {
         const id = exact.id
-        if (typeof id === 'string' && id) {
-            const detail = await apiPost(`/people/${id}`, {})
-            return extractPerson(detail)
-        }
+        if (typeof id === 'string' && id) return fetchPersonById(id)
         return exact
     }
 
     const partial = people.filter((p) => getDisplayName(p).toLowerCase().includes(lower))
     if (partial.length === 1) {
         const id = partial[0].id
-        if (typeof id === 'string' && id) {
-            const detail = await apiPost(`/people/${id}`, {})
-            return extractPerson(detail)
-        }
+        if (typeof id === 'string' && id) return fetchPersonById(id)
         return partial[0]
     }
     if (partial.length > 1) {
@@ -235,11 +241,7 @@ async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
         )
     }
 
-    throw new Error(
-        formatError('PERSON_NOT_FOUND', `Person "${ref}" not found.`, [
-            'To look up by ID, use id:xxx format (e.g., id:12345)',
-        ]),
-    )
+    throw new Error(formatError('PERSON_NOT_FOUND', `Person "${ref}" not found.`))
 }
 
 async function viewPerson(ref: string, options: OutputOptions): Promise<void> {
