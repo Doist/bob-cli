@@ -196,22 +196,22 @@ function looksLikeRawId(ref: string): boolean {
     return /^\d+$/.test(ref)
 }
 
-async function fetchPersonById(id: string): Promise<Record<string, unknown>> {
+async function fetchPersonByIdentifier(id: string): Promise<Record<string, unknown>> {
     const response = await apiPost(`/people/${id}`, {})
     return extractPerson(response)
 }
 
 async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
     if (isIdRef(ref)) {
-        return fetchPersonById(extractId(ref))
+        return fetchPersonByIdentifier(extractId(ref))
     }
 
     if (ref.includes('@')) {
-        return fetchPersonById(ref)
+        return fetchPersonByIdentifier(ref)
     }
 
     if (looksLikeRawId(ref)) {
-        return fetchPersonById(ref)
+        return fetchPersonByIdentifier(ref)
     }
 
     const response = await apiPost('/people/search', {})
@@ -221,14 +221,14 @@ async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
     const exact = people.find((p) => getDisplayName(p).toLowerCase() === lower)
     if (exact) {
         const id = exact.id
-        if (typeof id === 'string' && id) return fetchPersonById(id)
+        if (typeof id === 'string' && id) return fetchPersonByIdentifier(id)
         return exact
     }
 
     const partial = people.filter((p) => getDisplayName(p).toLowerCase().includes(lower))
     if (partial.length === 1) {
         const id = partial[0].id
-        if (typeof id === 'string' && id) return fetchPersonById(id)
+        if (typeof id === 'string' && id) return fetchPersonByIdentifier(id)
         return partial[0]
     }
     if (partial.length > 1) {
