@@ -10,7 +10,7 @@ Use this skill when the user wants to query HiBob HR data.
 
 - \`bob people\` - List employees
 - \`bob people "john"\` - Search employees by name (local filter)
-- \`bob person <id>\` - View a single employee
+- \`bob person <ref>\` - View a single employee (name, email, or id:xxx)
 - \`bob whosout\` - Who is out of office
 - \`bob outtoday\` - Who is out today
 - \`bob skill list\` - List supported agents
@@ -27,7 +27,8 @@ All list commands support:
 \`\`\`bash
 bob people --json
 bob people "Ava" --department "Engineering"
-bob person 12345
+bob person "Jane Doe"
+bob person id:12345
 bob whosout --from 2024-01-15 --to 2024-01-20
 bob outtoday --date 2024-01-15
 \`\`\`
