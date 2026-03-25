@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/Doist/bob-cli/compare/v1.2.0...v1.3.0) (2026-03-25)
+
+
+### Features
+
+* add new agent skills and skill auto-update on upgrade ([#17](https://github.com/Doist/bob-cli/issues/17)) ([b73b761](https://github.com/Doist/bob-cli/commit/b73b761d2e6330680b71984b7f9e74bc9a926519))
+
+
+### Bug Fixes
+
+* **person:** Support name lookup and id: prefix syntax ([#13](https://github.com/Doist/bob-cli/issues/13)) ([3c81bda](https://github.com/Doist/bob-cli/commit/3c81bda843ca86cac5c0efac67ccbc1ab3af58d9))
+
 ## [1.2.0](https://github.com/Doist/bob-cli/compare/v1.1.2...v1.2.0) (2026-02-06)
 
 
