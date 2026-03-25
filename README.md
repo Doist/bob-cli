@@ -1,6 +1,54 @@
-# bob-cli
+# HiBob CLI
 
-HiBob CLI for querying employee directory and who's out.
+Command-line interface for querying the HiBob employee directory and who's out.
+
+## Installation
+
+> ```bash
+> npm install -g @doist/bob-cli
+> ```
+
+### Agent Skills
+
+Install skills for your coding agent:
+
+```bash
+bob skill install claude-code
+bob skill install codex
+bob skill install cursor
+bob skill install gemini
+bob skill install pi
+bob skill install universal
+```
+
+Skills are installed globally to `~/.<agent>/skills/bob-cli/SKILL.md`. When updating the CLI, installed skills are updated automatically. The `universal` agent installs to `~/.agents/skills/bob-cli/SKILL.md` and is compatible with Amp, GitHub Copilot, OpenCode, and other agents that read from `~/.agents/`.
+
+```bash
+bob skill list
+bob skill uninstall <agent>
+```
+
+## Uninstallation
+
+```bash
+npm uninstall -g @doist/bob-cli
+```
+
+To also remove installed agent skills:
+
+```bash
+bob skill uninstall <agent>
+```
+
+## Local Setup
+
+```bash
+git clone https://github.com/Doist/bob-cli.git
+cd bob-cli
+npm install
+npm run build
+npm link
+```
 
 ## Setup
 
@@ -9,20 +57,6 @@ Set credentials as environment variables:
 ```bash
 export HIBOB_SERVICE_ID="your-service-user-id"
 export HIBOB_API_TOKEN="your-api-token"
-```
-
-## Install
-
-```bash
-npm install -g @doist/bob-cli
-```
-
-## Local development
-
-```bash
-npm install
-npm run build
-npm link
 ```
 
 ## Usage
@@ -38,7 +72,6 @@ bob whosout --from 2024-01-15 --to 2024-01-20
 
 bob outtoday
 bob outtoday --date 2024-01-15
-
 ```
 
 ### Output formats
@@ -48,28 +81,6 @@ All list commands support:
 - `--json` - JSON output (essential fields)
 - `--ndjson` - NDJSON output (one JSON object per line)
 - `--full` - Include all fields in JSON output
-
-### Skills
-
-#### Install skills for Claude
-
-```bash
-bob skill install claude-code
-```
-
-#### Install skills for Codex
-
-```bash
-bob skill install codex
-```
-
-```bash
-bob skill list
-bob skill install cursor
-bob skill uninstall codex
-```
-
-The skill file is installed to `~/.claude/skills/bob-cli/SKILL.md`, `~/.codex/skills/bob-cli/SKILL.md`, or `~/.cursor/skills/bob-cli/SKILL.md` (or locally with `--local`).
 
 ## CI & Releases
 
