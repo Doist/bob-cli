@@ -11,7 +11,7 @@ interface InstallerConfig {
 }
 
 function generateSkillFile(): string {
-    const frontmatter = `---\nname: ${SKILL_NAME}\ndescription: "${SKILL_DESCRIPTION}"\n---\n\n`
+    const frontmatter = `---\nname: ${SKILL_NAME}\ndescription: ${JSON.stringify(SKILL_DESCRIPTION)}\n---\n\n`
     return frontmatter + SKILL_CONTENT
 }
 
