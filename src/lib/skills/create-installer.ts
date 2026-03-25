@@ -11,14 +11,19 @@ interface InstallerConfig {
 }
 
 function generateSkillFile(): string {
-    const frontmatter = `---\nname: ${SKILL_NAME}\ndescription: ${SKILL_DESCRIPTION}\n---\n\n`
+    const frontmatter = `---
+name: ${SKILL_NAME}
+description: ${JSON.stringify(SKILL_DESCRIPTION)}
+---
+
+`
     return frontmatter + SKILL_CONTENT
 }
 
 export function createInstaller(config: InstallerConfig): SkillInstaller {
     function getInstallPath(local: boolean): string {
         const base = local ? process.cwd() : homedir()
-        return join(base, config.dirName, 'skills', 'bob-cli', 'SKILL.md')
+        return join(base, config.dirName, 'skills', SKILL_NAME, 'SKILL.md')
     }
 
     return {
