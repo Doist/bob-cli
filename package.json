@@ -14,7 +14,8 @@
         "format": "biome format --write .",
         "lint": "biome lint .",
         "type-check": "tsc -p tsconfig.json --noEmit",
-        "test": "vitest run"
+        "test": "vitest run",
+        "postinstall": "node dist/postinstall.js || true"
     },
     "engines": {
         "node": ">=24.0.0"
