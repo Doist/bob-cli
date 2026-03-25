@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/Doist/bob-cli/compare/v1.3.1...v1.3.2) (2026-03-25)
+
+
+### Bug Fixes
+
+* correct skill name and quote YAML description ([#20](https://github.com/Doist/bob-cli/issues/20)) ([830c385](https://github.com/Doist/bob-cli/commit/830c385a63151f4ecfb6cd7f7eae5e4731b41703))
+
 ## [1.3.1](https://github.com/Doist/bob-cli/compare/v1.3.0...v1.3.1) (2026-03-25)
 
 
