@@ -1,4 +1,5 @@
-import { homedir } from 'node:os'
+import { mkdir, rm } from 'node:fs/promises'
+import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { createInstaller } from '../lib/skills/create-installer.js'
@@ -81,5 +82,23 @@ describe('install detection', () => {
         await expect(installer.install(false, false)).rejects.toThrow(
             'does not appear to be installed',
         )
+    })
+
+    it('skips agent directory check for universal (.agents)', async () => {
+        const originalCwd = process.cwd()
+        const testDir = join(tmpdir(), `bob-cli-test-${Date.now()}`)
+        await mkdir(testDir, { recursive: true })
+        process.chdir(testDir)
+        try {
+            const installer = createInstaller({
+                name: 'universal',
+                description: 'Universal agent',
+                dirName: '.agents',
+            })
+            await expect(installer.install(true, false)).resolves.not.toThrow()
+        } finally {
+            process.chdir(originalCwd)
+            await rm(testDir, { recursive: true, force: true })
+        }
     })
 })
