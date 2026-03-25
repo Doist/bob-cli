@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/Doist/bob-cli/compare/v1.3.0...v1.3.1) (2026-03-25)
+
+
+### Bug Fixes
+
+* use cross-platform postinstall script ([#18](https://github.com/Doist/bob-cli/issues/18)) ([0fb341b](https://github.com/Doist/bob-cli/commit/0fb341bb51a6dff50defe3ff4299eb7654cfc36e))
+
 ## [1.3.0](https://github.com/Doist/bob-cli/compare/v1.2.0...v1.3.0) (2026-03-25)
 
 
