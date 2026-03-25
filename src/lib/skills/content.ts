@@ -1,4 +1,4 @@
-export const SKILL_NAME = 'hibob'
+export const SKILL_NAME = 'bob-cli'
 export const SKILL_DESCRIPTION =
     "Query HiBob HR data: employee directory and who's out via the bob CLI"
 
