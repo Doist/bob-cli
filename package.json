@@ -15,7 +15,9 @@
         "lint": "biome lint .",
         "type-check": "tsc -p tsconfig.json --noEmit",
         "test": "vitest run",
-        "postinstall": "node scripts/postinstall.js"
+        "postinstall": "node scripts/postinstall.js",
+        "check:skill-sync": "node scripts/check-skill-sync.js",
+        "sync:skill": "node scripts/sync-skill.js"
     },
     "engines": {
         "node": ">=24.0.0"
