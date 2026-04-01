@@ -53,22 +53,21 @@ describe('skill registry', () => {
 })
 
 describe('installer paths', () => {
-    it.each(AGENTS)('$agent has correct name, description, and paths', ({
-        agent,
-        description,
-        dirName,
-    }) => {
-        const installer = skillInstallers[agent]
+    it.each(AGENTS)(
+        '$agent has correct name, description, and paths',
+        ({ agent, description, dirName }) => {
+            const installer = skillInstallers[agent]
 
-        expect(installer.name).toBe(agent)
-        expect(installer.description).toBe(description)
+            expect(installer.name).toBe(agent)
+            expect(installer.description).toBe(description)
 
-        const globalPath = installer.getInstallPath(false)
-        expect(globalPath).toBe(join(homedir(), dirName, 'skills', 'bob-cli', 'SKILL.md'))
+            const globalPath = installer.getInstallPath(false)
+            expect(globalPath).toBe(join(homedir(), dirName, 'skills', 'bob-cli', 'SKILL.md'))
 
-        const localPath = installer.getInstallPath(true)
-        expect(localPath).toBe(join(process.cwd(), dirName, 'skills', 'bob-cli', 'SKILL.md'))
-    })
+            const localPath = installer.getInstallPath(true)
+            expect(localPath).toBe(join(process.cwd(), dirName, 'skills', 'bob-cli', 'SKILL.md'))
+        },
+    )
 })
 
 describe('install detection', () => {
