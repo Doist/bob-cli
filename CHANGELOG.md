@@ -2,69 +2,59 @@
 
 ## [1.3.2](https://github.com/Doist/bob-cli/compare/v1.3.1...v1.3.2) (2026-03-25)
 
-
 ### Bug Fixes
 
-* correct skill name and quote YAML description ([#20](https://github.com/Doist/bob-cli/issues/20)) ([830c385](https://github.com/Doist/bob-cli/commit/830c385a63151f4ecfb6cd7f7eae5e4731b41703))
+- correct skill name and quote YAML description ([#20](https://github.com/Doist/bob-cli/issues/20)) ([830c385](https://github.com/Doist/bob-cli/commit/830c385a63151f4ecfb6cd7f7eae5e4731b41703))
 
 ## [1.3.1](https://github.com/Doist/bob-cli/compare/v1.3.0...v1.3.1) (2026-03-25)
 
-
 ### Bug Fixes
 
-* use cross-platform postinstall script ([#18](https://github.com/Doist/bob-cli/issues/18)) ([0fb341b](https://github.com/Doist/bob-cli/commit/0fb341bb51a6dff50defe3ff4299eb7654cfc36e))
+- use cross-platform postinstall script ([#18](https://github.com/Doist/bob-cli/issues/18)) ([0fb341b](https://github.com/Doist/bob-cli/commit/0fb341bb51a6dff50defe3ff4299eb7654cfc36e))
 
 ## [1.3.0](https://github.com/Doist/bob-cli/compare/v1.2.0...v1.3.0) (2026-03-25)
 
-
 ### Features
 
-* add new agent skills and skill auto-update on upgrade ([#17](https://github.com/Doist/bob-cli/issues/17)) ([b73b761](https://github.com/Doist/bob-cli/commit/b73b761d2e6330680b71984b7f9e74bc9a926519))
-
+- add new agent skills and skill auto-update on upgrade ([#17](https://github.com/Doist/bob-cli/issues/17)) ([b73b761](https://github.com/Doist/bob-cli/commit/b73b761d2e6330680b71984b7f9e74bc9a926519))
 
 ### Bug Fixes
 
-* **person:** Support name lookup and id: prefix syntax ([#13](https://github.com/Doist/bob-cli/issues/13)) ([3c81bda](https://github.com/Doist/bob-cli/commit/3c81bda843ca86cac5c0efac67ccbc1ab3af58d9))
+- **person:** Support name lookup and id: prefix syntax ([#13](https://github.com/Doist/bob-cli/issues/13)) ([3c81bda](https://github.com/Doist/bob-cli/commit/3c81bda843ca86cac5c0efac67ccbc1ab3af58d9))
 
 ## [1.2.0](https://github.com/Doist/bob-cli/compare/v1.1.2...v1.2.0) (2026-02-06)
 
-
 ### Features
 
-* Add auth config file with login/status/logout commands ([#11](https://github.com/Doist/bob-cli/issues/11)) ([222c7ae](https://github.com/Doist/bob-cli/commit/222c7ae2069de917959a8b5f6e1da48872cd979b))
+- Add auth config file with login/status/logout commands ([#11](https://github.com/Doist/bob-cli/issues/11)) ([222c7ae](https://github.com/Doist/bob-cli/commit/222c7ae2069de917959a8b5f6e1da48872cd979b))
 
 ## [1.1.2](https://github.com/Doist/bob-cli/compare/v1.1.1...v1.1.2) (2026-02-02)
 
-
 ### Bug Fixes
 
-* Add proper repository field ([#9](https://github.com/Doist/bob-cli/issues/9)) ([306e2cc](https://github.com/Doist/bob-cli/commit/306e2ccf63f734d988bfaa488278db4876151994))
+- Add proper repository field ([#9](https://github.com/Doist/bob-cli/issues/9)) ([306e2cc](https://github.com/Doist/bob-cli/commit/306e2ccf63f734d988bfaa488278db4876151994))
 
 ## [1.1.1](https://github.com/Doist/bob-cli/compare/v1.1.0...v1.1.1) (2026-02-02)
 
-
 ### Bug Fixes
 
-* Add URL field to package.json ([#7](https://github.com/Doist/bob-cli/issues/7)) ([60033b1](https://github.com/Doist/bob-cli/commit/60033b18cf7082a309e44a39acf65e6744cc159c))
+- Add URL field to package.json ([#7](https://github.com/Doist/bob-cli/issues/7)) ([60033b1](https://github.com/Doist/bob-cli/commit/60033b18cf7082a309e44a39acf65e6744cc159c))
 
 ## 1.1.0 (2026-02-02)
 
-
 ### Features
 
-* Bob CLI ([060d9d2](https://github.com/Doist/bob-cli/commit/060d9d25e533b22a0c633d28fe1220d317fe962c))
-* Initial cleanups ([#2](https://github.com/Doist/bob-cli/issues/2)) ([6e26f23](https://github.com/Doist/bob-cli/commit/6e26f23883519e9a5430afda02a458d41e657848))
-
+- Bob CLI ([060d9d2](https://github.com/Doist/bob-cli/commit/060d9d25e533b22a0c633d28fe1220d317fe962c))
+- Initial cleanups ([#2](https://github.com/Doist/bob-cli/issues/2)) ([6e26f23](https://github.com/Doist/bob-cli/commit/6e26f23883519e9a5430afda02a458d41e657848))
 
 ### Bug Fixes
 
-* Match HiBob API field names for timeoff display ([#6](https://github.com/Doist/bob-cli/issues/6)) ([ca2c8cb](https://github.com/Doist/bob-cli/commit/ca2c8cb2685297e87e21dbd9825cc978274c3e8e))
-* Update install instructions after release ([#4](https://github.com/Doist/bob-cli/issues/4)) ([1f05f87](https://github.com/Doist/bob-cli/commit/1f05f873b65c95782290568a8a8558ceb0d46847))
-
+- Match HiBob API field names for timeoff display ([#6](https://github.com/Doist/bob-cli/issues/6)) ([ca2c8cb](https://github.com/Doist/bob-cli/commit/ca2c8cb2685297e87e21dbd9825cc978274c3e8e))
+- Update install instructions after release ([#4](https://github.com/Doist/bob-cli/issues/4)) ([1f05f87](https://github.com/Doist/bob-cli/commit/1f05f873b65c95782290568a8a8558ceb0d46847))
 
 ### Miscellaneous Chores
 
-* Release 1.1.0 ([24f0f94](https://github.com/Doist/bob-cli/commit/24f0f944a93fb81967aa323006801d9d4474705c))
+- Release 1.1.0 ([24f0f94](https://github.com/Doist/bob-cli/commit/24f0f944a93fb81967aa323006801d9d4474705c))
 
 ## [1.0.0] - 2026-02-02
 
