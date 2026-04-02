@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/Doist/bob-cli/compare/v1.3.2...v1.4.0) (2026-04-02)
+
+### Features
+
+- add `bob update` command ([#28](https://github.com/Doist/bob-cli/issues/28)) ([7b01ad3](https://github.com/Doist/bob-cli/commit/7b01ad3c55e230810642d16e3671b0bc5406dccd))
+
 # Changelog
 
 ## [1.3.2](https://github.com/Doist/bob-cli/compare/v1.3.1...v1.3.2) (2026-03-25)
