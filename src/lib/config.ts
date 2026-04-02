@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
@@ -53,6 +53,7 @@ export async function writeConfig(serviceId: string, apiToken: string): Promise<
         encoding: 'utf-8',
         mode: 0o600,
     })
+    await chmod(path, 0o600)
 }
 
 export async function getUpdateChannel(): Promise<UpdateChannel> {
@@ -69,6 +70,7 @@ export async function setUpdateChannel(channel: UpdateChannel): Promise<void> {
         encoding: 'utf-8',
         mode: 0o600,
     })
+    await chmod(path, 0o600)
 }
 
 export async function deleteConfig(): Promise<void> {

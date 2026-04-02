@@ -350,10 +350,7 @@ describe('update command', () => {
             const program = createProgram()
             await program.parseAsync(['node', 'bob', 'update'])
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.anything(),
-                expect.stringContaining('older than your current'),
-            )
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Downgrade available'))
             expect(mockSpawn).toHaveBeenCalledWith(
                 'npm',
                 ['install', '-g', '@doist/bob-cli@next'],
