@@ -21,7 +21,7 @@ async function fetchLatestVersion(): Promise<string> {
 }
 
 function detectPackageManager(): string {
-    const execPath = process.env.npm_execpath ?? ''
+    const execPath = process.env.npm_execpath || process.argv[1] || ''
     if (execPath.includes('pnpm')) return 'pnpm'
     return 'npm'
 }
@@ -81,7 +81,17 @@ export async function updateAction(options: { check?: boolean }): Promise<void> 
             () => runInstall(pm),
         )
     } catch (error) {
-        if (error instanceof Error && 'code' in error && error.code === 'EACCES') {
+        const message = error instanceof Error ? error.message : String(error)
+        console.error(chalk.red('Error:'), `Install failed: ${message}`)
+        process.exitCode = 1
+        return
+    }
+
+    if (result.exitCode !== 0) {
+        if (
+            result.stderr &&
+            (result.stderr.includes('EACCES') || result.stderr.includes('EPERM'))
+        ) {
             console.error(chalk.red('Error:'), 'Permission denied. Try running with sudo:')
             console.error(
                 chalk.dim(
@@ -89,17 +99,10 @@ export async function updateAction(options: { check?: boolean }): Promise<void> 
                 ),
             )
         } else {
-            const message = error instanceof Error ? error.message : String(error)
-            console.error(chalk.red('Error:'), `Install failed: ${message}`)
-        }
-        process.exitCode = 1
-        return
-    }
-
-    if (result.exitCode !== 0) {
-        console.error(chalk.red('Error:'), `${pm} exited with code ${result.exitCode}`)
-        if (result.stderr) {
-            console.error(chalk.dim(result.stderr.trim()))
+            console.error(chalk.red('Error:'), `${pm} exited with code ${result.exitCode}`)
+            if (result.stderr) {
+                console.error(chalk.dim(result.stderr.trim()))
+            }
         }
         process.exitCode = 1
         return

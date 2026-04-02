@@ -72,13 +72,12 @@ function mockSpawnFailure(exitCode: number) {
 function mockSpawnPermissionError() {
     mockSpawn.mockReturnValue({
         stderr: {
-            on: vi.fn(),
+            on: vi.fn((event: string, cb: (data: Buffer) => void) => {
+                if (event === 'data') cb(Buffer.from('npm ERR! code EACCES\n'))
+            }),
         },
         on: vi.fn((event: string, cb: (arg?: unknown) => void) => {
-            if (event === 'error') {
-                const err = Object.assign(new Error('EACCES'), { code: 'EACCES' })
-                cb(err)
-            }
+            if (event === 'close') cb(243)
         }),
     } as never)
 }
