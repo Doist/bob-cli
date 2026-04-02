@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { setUpdateChannel, type UpdateChannel } from '../../lib/update-config.js'
+import { setUpdateChannel, type UpdateChannel } from '../../lib/config.js'
 
 export async function switchChannel(options: {
     stable?: boolean

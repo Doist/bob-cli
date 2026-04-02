@@ -11,15 +11,19 @@ vi.mock('../lib/spinner.js', () => ({
     withSpinner: vi.fn((_opts: unknown, fn: () => Promise<unknown>) => fn()),
 }))
 
-// Mock update-config module
-vi.mock('../lib/update-config.js', () => ({
-    getUpdateChannel: vi.fn().mockResolvedValue('stable'),
-    setUpdateChannel: vi.fn().mockResolvedValue(undefined),
-}))
+// Mock config module for update channel functions
+vi.mock('../lib/config.js', async (importOriginal) => {
+    const original = await importOriginal<typeof import('../lib/config.js')>()
+    return {
+        ...original,
+        getUpdateChannel: vi.fn().mockResolvedValue('stable'),
+        setUpdateChannel: vi.fn().mockResolvedValue(undefined),
+    }
+})
 
 import { spawn } from 'node:child_process'
 import { registerUpdateCommand } from '../commands/update/index.js'
-import { getUpdateChannel, setUpdateChannel } from '../lib/update-config.js'
+import { getUpdateChannel, setUpdateChannel } from '../lib/config.js'
 
 const mockSpawn = vi.mocked(spawn)
 const mockGetUpdateChannel = vi.mocked(getUpdateChannel)

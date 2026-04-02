@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { getUpdateChannel } from '../../lib/update-config.js'
+import { getUpdateChannel } from '../../lib/config.js'
 
 export async function showChannel(): Promise<void> {
     const channel = await getUpdateChannel()

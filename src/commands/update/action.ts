@@ -1,8 +1,8 @@
 import { spawn } from 'node:child_process'
 import chalk from 'chalk'
 import packageJson from '../../../package.json' with { type: 'json' }
+import { getUpdateChannel, type UpdateChannel } from '../../lib/config.js'
 import { withSpinner } from '../../lib/spinner.js'
-import { getUpdateChannel, type UpdateChannel } from '../../lib/update-config.js'
 
 const PACKAGE_NAME = '@doist/bob-cli'
 
@@ -113,12 +113,16 @@ export async function updateAction(options: { check?: boolean }): Promise<void> 
                 ? `  Channel: ${chalk.magenta('pre-release')}`
                 : `  Channel: ${chalk.green('stable')}`
 
-        if (updateAvailable) {
+        if (currentVersion === latestVersion) {
+            console.log(chalk.green('✓'), `Already up to date (v${currentVersion})`)
+        } else if (updateAvailable) {
             console.log(
                 `Update available: ${chalk.dim(`v${currentVersion}`)} → ${chalk.green(`v${latestVersion}`)}`,
             )
         } else {
-            console.log(chalk.green('✓'), `Already up to date (v${currentVersion})`)
+            console.log(
+                `Downgrade available: ${chalk.dim(`v${currentVersion}`)} → ${chalk.yellow(`v${latestVersion}`)}`,
+            )
         }
         console.log(channelLine)
         return

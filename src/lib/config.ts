@@ -2,9 +2,12 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 
+export type UpdateChannel = 'stable' | 'pre-release'
+
 export interface Config {
     service_id: string
     api_token: string
+    update_channel?: UpdateChannel
 }
 
 function configPath(): string {
@@ -13,6 +16,15 @@ function configPath(): string {
 
 export function getConfigPath(): string {
     return configPath()
+}
+
+async function readRawConfig(): Promise<Record<string, unknown>> {
+    try {
+        const content = await readFile(configPath(), 'utf-8')
+        return JSON.parse(content) as Record<string, unknown>
+    } catch {
+        return {}
+    }
 }
 
 export async function readConfig(): Promise<Config | null> {
@@ -35,8 +47,25 @@ export async function readConfig(): Promise<Config | null> {
 export async function writeConfig(serviceId: string, apiToken: string): Promise<void> {
     const path = configPath()
     await mkdir(dirname(path), { recursive: true, mode: 0o700 })
-    const config: Config = { service_id: serviceId, api_token: apiToken }
+    const existing = await readRawConfig()
+    const config = { ...existing, service_id: serviceId, api_token: apiToken }
     await writeFile(path, `${JSON.stringify(config, null, 2)}\n`, {
+        encoding: 'utf-8',
+        mode: 0o600,
+    })
+}
+
+export async function getUpdateChannel(): Promise<UpdateChannel> {
+    const config = await readRawConfig()
+    return (config.update_channel as UpdateChannel) ?? 'stable'
+}
+
+export async function setUpdateChannel(channel: UpdateChannel): Promise<void> {
+    const path = configPath()
+    const existing = await readRawConfig()
+    existing.update_channel = channel
+    await mkdir(dirname(path), { recursive: true, mode: 0o700 })
+    await writeFile(path, `${JSON.stringify(existing, null, 2)}\n`, {
         encoding: 'utf-8',
         mode: 0o600,
     })
