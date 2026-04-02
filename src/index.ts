@@ -7,7 +7,7 @@ import { registerChangelogCommand } from './commands/changelog.js'
 import { registerPeopleCommand } from './commands/people.js'
 import { registerSkillCommand } from './commands/skill.js'
 import { registerTimeoffCommand } from './commands/timeoff.js'
-import { registerUpdateCommand } from './commands/update.js'
+import { registerUpdateCommand } from './commands/update/index.js'
 
 program
     .name('bob')
