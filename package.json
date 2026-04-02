@@ -17,6 +17,12 @@
         "sync:skill": "npm run build && node scripts/sync-skill.js",
         "prepublishOnly": "npm run build && npm test"
     },
+    "files": [
+        "dist",
+        "scripts",
+        "skills",
+        "CHANGELOG.md"
+    ],
     "engines": {
         "node": ">=24.0.0"
     },
