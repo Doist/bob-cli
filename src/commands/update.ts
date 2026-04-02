@@ -30,7 +30,8 @@ function runInstall(pm: string): Promise<{ exitCode: number; stderr: string }> {
     const command = pm === 'pnpm' ? 'add' : 'install'
     return new Promise((resolve, reject) => {
         const child = spawn(pm, [command, '-g', `${PACKAGE_NAME}@latest`], {
-            stdio: 'pipe',
+            stdio: ['ignore', 'ignore', 'pipe'],
+            shell: process.platform === 'win32',
         })
 
         let stderr = ''

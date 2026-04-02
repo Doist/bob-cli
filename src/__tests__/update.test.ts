@@ -155,7 +155,7 @@ describe('update command', () => {
             expect(mockSpawn).toHaveBeenCalledWith(
                 'npm',
                 ['install', '-g', '@doist/bob-cli@latest'],
-                { stdio: 'pipe' },
+                { stdio: ['ignore', 'ignore', 'pipe'], shell: process.platform === 'win32' },
             )
             expect(consoleSpy).toHaveBeenCalledWith(
                 expect.anything(),
@@ -172,7 +172,8 @@ describe('update command', () => {
             await program.parseAsync(['node', 'bob', 'update'])
 
             expect(mockSpawn).toHaveBeenCalledWith('pnpm', ['add', '-g', '@doist/bob-cli@latest'], {
-                stdio: 'pipe',
+                stdio: ['ignore', 'ignore', 'pipe'],
+                shell: process.platform === 'win32',
             })
         })
     })

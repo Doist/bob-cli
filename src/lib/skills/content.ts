@@ -13,6 +13,8 @@ Use this skill when the user wants to query HiBob HR data.
 - \`bob person <ref>\` - View a single employee (name, email, or id:xxx)
 - \`bob whosout\` - Who is out of office
 - \`bob outtoday\` - Who is out today
+- \`bob update\` - Update to the latest version
+- \`bob changelog\` - Show recent changelog entries
 - \`bob skill list\` - List supported agents
 
 ## Output Formats
