@@ -6,6 +6,7 @@ import { registerAuthCommand } from './commands/auth.js'
 import { registerPeopleCommand } from './commands/people.js'
 import { registerSkillCommand } from './commands/skill.js'
 import { registerTimeoffCommand } from './commands/timeoff.js'
+import { registerUpdateCommand } from './commands/update.js'
 
 program
     .name('bob')
@@ -24,6 +25,7 @@ registerAuthCommand(program)
 registerPeopleCommand(program)
 registerTimeoffCommand(program)
 registerSkillCommand(program)
+registerUpdateCommand(program)
 
 program.parseAsync().catch((err: Error) => {
     console.error(err.message)
