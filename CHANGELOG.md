@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/Doist/bob-cli/compare/v1.5.0...v1.6.0) (2026-04-02)
+
+### Features
+
+- allow switching between stable and pre-release update channels ([#31](https://github.com/Doist/bob-cli/issues/31)) ([b7584f1](https://github.com/Doist/bob-cli/commit/b7584f1fa7fa7dbf7748f198cf1a09719d5a661a))
+
 ## [1.5.0](https://github.com/Doist/bob-cli/compare/v1.4.0...v1.5.0) (2026-04-02)
 
 ### Features
