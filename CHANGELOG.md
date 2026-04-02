@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/Doist/bob-cli/compare/v1.4.0...v1.5.0) (2026-04-02)
+
+### Features
+
+- add `bob changelog` command ([#29](https://github.com/Doist/bob-cli/issues/29)) ([08ce630](https://github.com/Doist/bob-cli/commit/08ce6308514b9c6d77cde0020d52d470501d5582))
+
 ## [1.4.0](https://github.com/Doist/bob-cli/compare/v1.3.2...v1.4.0) (2026-04-02)
 
 ### Features
