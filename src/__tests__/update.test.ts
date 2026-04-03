@@ -333,7 +333,7 @@ describe('update command', () => {
         })
 
         it('treats next.10 as newer than next.2 (multi-digit prerelease)', async () => {
-            mockFetch('1.6.0-next.10')
+            mockFetch('1.7.0-next.10')
             mockSpawnSuccess()
 
             const program = createProgram()
@@ -417,21 +417,45 @@ describe('update command', () => {
         })
     })
 
-    describe('channel subcommand', () => {
+    describe('--channel flag', () => {
         it('shows stable when no config set', async () => {
             const program = createProgram()
-            await program.parseAsync(['node', 'bob', 'update', 'channel'])
+            await program.parseAsync(['node', 'bob', 'update', '--channel'])
 
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('stable'))
+            expect(mockSpawn).not.toHaveBeenCalled()
         })
 
         it('shows pre-release when configured', async () => {
             mockGetUpdateChannel.mockResolvedValue('pre-release')
 
             const program = createProgram()
-            await program.parseAsync(['node', 'bob', 'update', 'channel'])
+            await program.parseAsync(['node', 'bob', 'update', '--channel'])
 
             expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('pre-release'))
+            expect(mockSpawn).not.toHaveBeenCalled()
+        })
+
+        it('does not fetch from registry', async () => {
+            mockFetch('99.99.99')
+
+            const program = createProgram()
+            await program.parseAsync(['node', 'bob', 'update', '--channel'])
+
+            expect(fetch).not.toHaveBeenCalled()
+        })
+
+        it('errors when combined with --check', async () => {
+            mockFetch('99.99.99')
+
+            const program = createProgram()
+            await program.parseAsync(['node', 'bob', 'update', '--check', '--channel'])
+
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.stringContaining('not both'),
+            )
+            expect(process.exitCode).toBe(1)
         })
     })
 })
