@@ -16,7 +16,7 @@ Use this skill when the user wants to query HiBob HR data.
 - `bob outtoday` - Who is out today
 - `bob update` - Update CLI to latest version
 - `bob update --check` - Check for updates without installing, show channel
-- `bob update channel` - Show current update channel
+- `bob update --channel` - Show current update channel
 - `bob update switch --stable` - Switch to stable release channel
 - `bob update switch --pre-release` - Switch to pre-release (next) channel
 - `bob changelog` - Show recent changelog entries
