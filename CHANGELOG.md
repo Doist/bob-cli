@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/Doist/bob-cli/compare/v1.6.0...v1.7.0) (2026-04-16)
+
+### Features
+
+- include half-day portion info in time-off output ([#35](https://github.com/Doist/bob-cli/issues/35)) ([cd3e349](https://github.com/Doist/bob-cli/commit/cd3e349a11b6b752a9037de0f5613a3cbf0d66a6))
+
 ## [1.6.0](https://github.com/Doist/bob-cli/compare/v1.5.0...v1.6.0) (2026-04-02)
 
 ### Features
