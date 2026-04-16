@@ -24,6 +24,8 @@ const TIMEOFF_ESSENTIAL_FIELDS = [
     'status',
     'startDate',
     'endDate',
+    'startPortion',
+    'endPortion',
     'start',
     'end',
     'from',

@@ -48,6 +48,12 @@ function getType(entry: Record<string, unknown>): string {
     return ''
 }
 
+function formatPortion(portion: unknown): string {
+    if (portion === 'morning') return 'AM'
+    if (portion === 'afternoon') return 'PM'
+    return ''
+}
+
 function formatDateRange(entry: Record<string, unknown>): string {
     const startCandidates = [
         entry.startDate,
@@ -73,10 +79,21 @@ function formatDateRange(entry: Record<string, unknown>): string {
         | string
         | undefined
 
+    const startPortion = formatPortion(entry.startPortion)
+    const endPortion = formatPortion(entry.endPortion)
+
     if (start && end && start !== end) {
-        return `${start} - ${end}`
+        const startStr = startPortion ? `${start} ${startPortion}` : start
+        const endStr = endPortion ? `${end} ${endPortion}` : end
+        return `${startStr} - ${endStr}`
     }
-    if (start) return start
+    if (start) {
+        if (startPortion && endPortion && startPortion === endPortion) {
+            return `${start} (${startPortion} only)`
+        }
+        if (startPortion) return `${start} ${startPortion}`
+        return start
+    }
     if (end) return end
     return ''
 }
