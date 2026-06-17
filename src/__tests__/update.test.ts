@@ -11,6 +11,13 @@ vi.mock('../lib/spinner.js', () => ({
     withSpinner: vi.fn((_opts: unknown, fn: () => Promise<unknown>) => fn()),
 }))
 
+// Mock package.json so version-comparison tests are decoupled from the live
+// release version. Using a pre-release as the "current" version lets the
+// multi-digit prerelease test exercise the numeric prerelease comparison.
+vi.mock('../../package.json', () => ({
+    default: { version: '1.7.0-next.2' },
+}))
+
 // Mock config module for update channel functions
 vi.mock('../lib/config.js', async (importOriginal) => {
     const original = await importOriginal<typeof import('../lib/config.js')>()
