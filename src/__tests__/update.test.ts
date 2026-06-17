@@ -11,6 +11,29 @@ vi.mock('../lib/spinner.js', () => ({
     withSpinner: vi.fn((_opts: unknown, fn: () => Promise<unknown>) => fn()),
 }))
 
+// By default the update tests run against the real package.json so we keep
+// smoke coverage that updateAction reads the shipped manifest. Individual
+// version-ordering tests can override the reported version via
+// setCurrentVersion() — needed by cases (e.g. the multi-digit prerelease test)
+// that must pin the "current" version regardless of the live release.
+const versionOverride = vi.hoisted(() => ({ value: undefined as string | undefined }))
+
+vi.mock('../../package.json', async (importOriginal) => {
+    const actual = await importOriginal<{ default: { version: string } }>()
+    return {
+        default: {
+            ...actual.default,
+            get version() {
+                return versionOverride.value ?? actual.default.version
+            },
+        },
+    }
+})
+
+function setCurrentVersion(version: string) {
+    versionOverride.value = version
+}
+
 // Mock config module for update channel functions
 vi.mock('../lib/config.js', async (importOriginal) => {
     const original = await importOriginal<typeof import('../lib/config.js')>()
@@ -112,6 +135,7 @@ describe('update command', () => {
         vi.restoreAllMocks()
         vi.unstubAllGlobals()
         vi.unstubAllEnvs()
+        versionOverride.value = undefined
         process.exitCode = undefined
     })
 
@@ -333,6 +357,7 @@ describe('update command', () => {
         })
 
         it('treats next.10 as newer than next.2 (multi-digit prerelease)', async () => {
+            setCurrentVersion('1.7.0-next.2')
             mockFetch('1.7.0-next.10')
             mockSpawnSuccess()
 
