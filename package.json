@@ -24,7 +24,8 @@
         "CHANGELOG.md"
     ],
     "engines": {
-        "node": ">=24.0.0"
+        "node": ">=24",
+        "npm": ">=11"
     },
     "dependencies": {
         "chalk": "^5.6.2",
