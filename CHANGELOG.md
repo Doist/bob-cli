@@ -1,3 +1,13 @@
+## [2.0.0](https://github.com/Doist/bob-cli/compare/v1.7.0...v2.0.0) (2026-07-16)
+
+### ⚠ BREAKING CHANGES
+
+- require node >=24, test on 24 & 26, support npm >=11 (#38)
+
+### Features
+
+- require node >=24, test on 24 & 26, support npm >=11 ([#38](https://github.com/Doist/bob-cli/issues/38)) ([83374e2](https://github.com/Doist/bob-cli/commit/83374e2ec98d5353568481afb274366429c3daf8))
+
 ## [1.7.0](https://github.com/Doist/bob-cli/compare/v1.6.0...v1.7.0) (2026-04-16)
 
 ### Features
