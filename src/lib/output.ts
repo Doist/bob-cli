@@ -2,7 +2,7 @@ import chalk from 'chalk'
 
 export type EntityType = 'person' | 'timeoff'
 
-const PERSON_ESSENTIAL_FIELDS = [
+export const PERSON_ESSENTIAL_FIELDS = [
     'id',
     'displayName',
     'email',
@@ -55,13 +55,30 @@ export function normalizeFieldPath(field: string): string {
     return field.startsWith('root.') ? field.slice('root.'.length) : field
 }
 
+/**
+ * Inverse of normalizeFieldPath: converts a response path into the path
+ * HiBob expects in a `fields` request body (top-level fields need `root.`).
+ */
+export function toRequestFieldPath(field: string): string {
+    return field.includes('.') ? field : `root.${field}`
+}
+
+/**
+ * Removes C0/C1 control characters (including ESC and CSI) so values that
+ * come from the API cannot inject terminal escape sequences when rendered.
+ */
+export function stripControlChars(value: string): string {
+    // eslint-disable-next-line no-control-regex
+    return value.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, '')
+}
+
 function withExtraFields(type: EntityType, extraFields?: readonly string[]): readonly string[] {
     const essential = getEssentialFields(type)
     if (!extraFields || extraFields.length === 0) return essential
     return [...new Set([...essential, ...extraFields.map(normalizeFieldPath)])]
 }
 
-function getPathValue(obj: unknown, path: string[]): unknown {
+export function getPathValue(obj: unknown, path: string[]): unknown {
     let current = obj as Record<string, unknown> | undefined
     for (const key of path) {
         if (!current || typeof current !== 'object') return undefined

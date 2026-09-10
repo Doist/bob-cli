@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { formatJson, formatNdjson, normalizeFieldPath } from './output.js'
+import {
+    formatJson,
+    formatNdjson,
+    normalizeFieldPath,
+    stripControlChars,
+    toRequestFieldPath,
+} from './output.js'
 
 describe('formatJson', () => {
     it('picks essential person fields including nested work data', () => {
@@ -75,5 +81,26 @@ describe('extra fields', () => {
     it('is ignored when --full is set', () => {
         const result = JSON.parse(formatJson(person, 'person', true, ['personal.shortBirthDate']))
         expect(result).toEqual(person)
+    })
+})
+
+describe('field path helpers', () => {
+    it('round-trips between request and response paths', () => {
+        expect(toRequestFieldPath('id')).toBe('root.id')
+        expect(toRequestFieldPath('work.department')).toBe('work.department')
+        expect(normalizeFieldPath(toRequestFieldPath('displayName'))).toBe('displayName')
+    })
+})
+
+describe('stripControlChars', () => {
+    it('removes ANSI and OSC escape sequences from API values', () => {
+        expect(stripControlChars('\u001b[31mred\u001b[0m')).toBe('[31mred[0m')
+        expect(stripControlChars('\u001b]52;c;payload\u0007')).toBe(']52;c;payload')
+        expect(stripControlChars('\u009b31mx')).toBe('31mx')
+    })
+
+    it('keeps ordinary text, tabs and newlines', () => {
+        expect(stripControlChars('07-12')).toBe('07-12')
+        expect(stripControlChars('a\tb\nc')).toBe('a\tb\nc')
     })
 })

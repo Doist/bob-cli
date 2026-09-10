@@ -3,10 +3,14 @@ import { Command } from 'commander'
 import { apiPost } from '../lib/api.js'
 import {
     formatError,
+    getPathValue,
     normalizeFieldPath,
     type OutputOptions,
     outputItem,
     outputList,
+    PERSON_ESSENTIAL_FIELDS,
+    stripControlChars,
+    toRequestFieldPath,
 } from '../lib/output.js'
 
 interface PeopleOptions extends OutputOptions {
@@ -14,19 +18,19 @@ interface PeopleOptions extends OutputOptions {
     inactive?: boolean
 }
 
+/** HiBob field carrying employment status; read by isActive() for the inactive filter. */
+const STATUS_FIELD = 'internal.status'
+
 /**
  * Fields the CLI needs for rendering and local filtering. When the caller
  * requests extra fields, HiBob only returns the fields named in the request,
- * so these must always be included.
+ * so these must always be included. Derived from the essential output fields
+ * so request and rendering stay in sync.
  */
-const DEFAULT_PEOPLE_FIELDS = [
-    'root.id',
-    'root.displayName',
-    'root.email',
-    'work.department',
-    'work.title',
-    'work.site',
-] as const
+const DEFAULT_PEOPLE_FIELDS: readonly string[] = [
+    ...PERSON_ESSENTIAL_FIELDS.map(toRequestFieldPath),
+    STATUS_FIELD,
+]
 
 const FIELDS_HELP = `
 Fields:
@@ -46,7 +50,8 @@ export function parseFieldsOption(value: string, previous: string[] = []): strin
     return [...previous, ...parsed]
 }
 
-export function buildPeopleSearchBody(options: {
+/** Request body for both `/people/search` and `/people/{id}`. */
+export function buildPeopleRequestBody(options: {
     inactive?: boolean
     fields?: string[]
 }): Record<string, unknown> {
@@ -130,22 +135,23 @@ function getSite(person: Record<string, unknown>): string {
 }
 
 function getFieldValue(person: Record<string, unknown>, field: string): unknown {
-    let current: unknown = person
-    for (const key of normalizeFieldPath(field).split('.')) {
-        if (!current || typeof current !== 'object') return undefined
-        current = (current as Record<string, unknown>)[key]
-    }
-    return current
+    return getPathValue(person, normalizeFieldPath(field).split('.'))
 }
 
 function formatFieldValue(value: unknown): string {
     if (value === undefined || value === null) return ''
-    if (typeof value === 'string') return value
+    if (typeof value === 'string') return stripControlChars(value)
     if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-    return JSON.stringify(value)
+    return stripControlChars(JSON.stringify(value))
 }
 
 function isActive(person: Record<string, unknown>): boolean | undefined {
+    const internalStatus = getFieldValue(person, STATUS_FIELD)
+    if (typeof internalStatus === 'string') {
+        const normalized = internalStatus.toLowerCase()
+        if (normalized === 'active') return true
+        if (normalized === 'inactive') return false
+    }
     const active = person.active
     if (typeof active === 'boolean') return active
     const isActive = person.isActive
@@ -245,7 +251,7 @@ function renderPersonView(person: Record<string, unknown>, extraFields: string[]
 }
 
 async function listPeople(query: string | undefined, options: PeopleOptions): Promise<void> {
-    const body = buildPeopleSearchBody(options)
+    const body = buildPeopleRequestBody(options)
 
     const response = await apiPost('/people/search', body)
     let people = extractPeopleList(response)
@@ -287,12 +293,7 @@ async function fetchPersonByIdentifier(
     id: string,
     fields?: string[],
 ): Promise<Record<string, unknown>> {
-    const body: Record<string, unknown> = {}
-    const requestFields = buildRequestFields(fields)
-    if (requestFields) {
-        body.fields = requestFields
-    }
-    const response = await apiPost(`/people/${id}`, body)
+    const response = await apiPost(`/people/${id}`, buildPeopleRequestBody({ fields }))
     return extractPerson(response)
 }
 
@@ -310,7 +311,10 @@ async function resolvePersonRef(ref: string, fields?: string[]): Promise<Record<
         return fetchPersonByIdentifier(ref, fields)
     }
 
-    const response = await apiPost('/people/search', buildPeopleSearchBody({ fields }))
+    // Name resolution only needs the default field set; the follow-up fetch by
+    // id carries any extra fields. In the rare case HiBob returns no usable id,
+    // the search record is returned as-is without extra fields.
+    const response = await apiPost('/people/search', buildPeopleRequestBody({}))
     const people = extractPeopleList(response).filter((p) => isActive(p) !== false)
     const lower = ref.toLowerCase()
 

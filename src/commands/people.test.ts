@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPeopleSearchBody, buildRequestFields, parseFieldsOption } from './people.js'
+import { buildPeopleRequestBody, buildRequestFields, parseFieldsOption } from './people.js'
 
 describe('parseFieldsOption', () => {
     it('splits comma-separated values and trims whitespace', () => {
@@ -35,6 +35,7 @@ describe('buildRequestFields', () => {
             'work.department',
             'work.title',
             'work.site',
+            'internal.status',
             'personal.shortBirthDate',
         ])
     })
@@ -46,17 +47,17 @@ describe('buildRequestFields', () => {
     })
 })
 
-describe('buildPeopleSearchBody', () => {
+describe('buildPeopleRequestBody', () => {
     it('sends an empty body by default so HiBob returns its default field set', () => {
-        expect(buildPeopleSearchBody({})).toEqual({})
+        expect(buildPeopleRequestBody({})).toEqual({})
     })
 
     it('sets showInactive when requested', () => {
-        expect(buildPeopleSearchBody({ inactive: true })).toEqual({ showInactive: true })
+        expect(buildPeopleRequestBody({ inactive: true })).toEqual({ showInactive: true })
     })
 
     it('adds requested fields on top of the defaults', () => {
-        const body = buildPeopleSearchBody({ fields: ['personal.shortBirthDate'] })
+        const body = buildPeopleRequestBody({ fields: ['personal.shortBirthDate'] })
         expect(body.fields).toContain('personal.shortBirthDate')
         expect(body.fields).toContain('root.displayName')
         expect(body.showInactive).toBeUndefined()
