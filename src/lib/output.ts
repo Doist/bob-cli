@@ -46,6 +46,21 @@ function getEssentialFields(type: EntityType): readonly string[] {
     }
 }
 
+/**
+ * Converts a HiBob API field path (as used in `fields` request bodies) into
+ * the path where that value appears in the response. Top-level fields are
+ * requested as `root.<name>` but returned as `<name>`.
+ */
+export function normalizeFieldPath(field: string): string {
+    return field.startsWith('root.') ? field.slice('root.'.length) : field
+}
+
+function withExtraFields(type: EntityType, extraFields?: readonly string[]): readonly string[] {
+    const essential = getEssentialFields(type)
+    if (!extraFields || extraFields.length === 0) return essential
+    return [...new Set([...essential, ...extraFields.map(normalizeFieldPath)])]
+}
+
 function getPathValue(obj: unknown, path: string[]): unknown {
     let current = obj as Record<string, unknown> | undefined
     for (const key of path) {
@@ -85,11 +100,12 @@ export function formatJson<T extends object>(
     data: T | T[],
     type?: EntityType,
     full = false,
+    extraFields?: readonly string[],
 ): string {
     if (full || !type) {
         return JSON.stringify(data, null, 2)
     }
-    const fields = getEssentialFields(type)
+    const fields = withExtraFields(type, extraFields)
     if (Array.isArray(data)) {
         return JSON.stringify(
             data.map((item) => pickFields(item, fields)),
@@ -104,11 +120,12 @@ export function formatNdjson<T extends object>(
     items: T[],
     type?: EntityType,
     full = false,
+    extraFields?: readonly string[],
 ): string {
     if (full || !type) {
         return items.map((item) => JSON.stringify(item)).join('\n')
     }
-    const fields = getEssentialFields(type)
+    const fields = withExtraFields(type, extraFields)
     return items.map((item) => JSON.stringify(pickFields(item, fields))).join('\n')
 }
 
@@ -127,6 +144,8 @@ export interface OutputOptions {
     json?: boolean
     ndjson?: boolean
     full?: boolean
+    /** Extra HiBob field paths to include in essential JSON output (e.g. `personal.shortBirthDate`). */
+    fields?: string[]
 }
 
 export function outputItem<T extends object>(
@@ -136,11 +155,11 @@ export function outputItem<T extends object>(
     render?: (item: T) => string,
 ): void {
     if (options.json) {
-        console.log(formatJson(item, type, options.full))
+        console.log(formatJson(item, type, options.full, options.fields))
         return
     }
     if (options.ndjson) {
-        console.log(formatNdjson([item], type, options.full))
+        console.log(formatNdjson([item], type, options.full, options.fields))
         return
     }
     if (render) {
@@ -157,11 +176,11 @@ export function outputList<T extends object>(
     render?: (item: T) => string,
 ): void {
     if (options.json) {
-        console.log(formatJson(items, type, options.full))
+        console.log(formatJson(items, type, options.full, options.fields))
         return
     }
     if (options.ndjson) {
-        console.log(formatNdjson(items, type, options.full))
+        console.log(formatNdjson(items, type, options.full, options.fields))
         return
     }
     if (render) {

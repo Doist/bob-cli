@@ -1,11 +1,69 @@
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { apiPost } from '../lib/api.js'
-import { formatError, type OutputOptions, outputItem, outputList } from '../lib/output.js'
+import {
+    formatError,
+    normalizeFieldPath,
+    type OutputOptions,
+    outputItem,
+    outputList,
+} from '../lib/output.js'
 
 interface PeopleOptions extends OutputOptions {
     department?: string
     inactive?: boolean
+}
+
+/**
+ * Fields the CLI needs for rendering and local filtering. When the caller
+ * requests extra fields, HiBob only returns the fields named in the request,
+ * so these must always be included.
+ */
+const DEFAULT_PEOPLE_FIELDS = [
+    'root.id',
+    'root.displayName',
+    'root.email',
+    'work.department',
+    'work.title',
+    'work.site',
+] as const
+
+const FIELDS_HELP = `
+Fields:
+  --fields takes HiBob field paths, comma-separated or repeated, e.g.
+    --fields personal.shortBirthDate
+    --fields personal.shortBirthDate,work.startDate
+  Requested fields are added to the request and to --json/--ndjson output.
+  Top-level fields use the "root." prefix (e.g. root.firstName).
+  See the HiBob API docs for available field paths.`
+
+/** Commander option parser: accepts comma-separated values and repeated flags. */
+export function parseFieldsOption(value: string, previous: string[] = []): string[] {
+    const parsed = value
+        .split(',')
+        .map((field) => field.trim())
+        .filter((field) => field.length > 0)
+    return [...previous, ...parsed]
+}
+
+export function buildPeopleSearchBody(options: {
+    inactive?: boolean
+    fields?: string[]
+}): Record<string, unknown> {
+    const body: Record<string, unknown> = {}
+    if (options.inactive) {
+        body.showInactive = true
+    }
+    const fields = buildRequestFields(options.fields)
+    if (fields) {
+        body.fields = fields
+    }
+    return body
+}
+
+export function buildRequestFields(fields?: string[]): string[] | undefined {
+    if (!fields || fields.length === 0) return undefined
+    return [...new Set([...DEFAULT_PEOPLE_FIELDS, ...fields])]
 }
 
 function normalizeValue(value: string): string {
@@ -71,6 +129,22 @@ function getSite(person: Record<string, unknown>): string {
     return ''
 }
 
+function getFieldValue(person: Record<string, unknown>, field: string): unknown {
+    let current: unknown = person
+    for (const key of normalizeFieldPath(field).split('.')) {
+        if (!current || typeof current !== 'object') return undefined
+        current = (current as Record<string, unknown>)[key]
+    }
+    return current
+}
+
+function formatFieldValue(value: unknown): string {
+    if (value === undefined || value === null) return ''
+    if (typeof value === 'string') return value
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+    return JSON.stringify(value)
+}
+
 function isActive(person: Record<string, unknown>): boolean | undefined {
     const active = person.active
     if (typeof active === 'boolean') return active
@@ -118,7 +192,7 @@ function extractPerson(data: unknown): Record<string, unknown> {
     return (data || {}) as Record<string, unknown>
 }
 
-function renderPersonRow(person: Record<string, unknown>): string {
+function renderPersonRow(person: Record<string, unknown>, extraFields: string[] = []): string {
     const name = getDisplayName(person)
     const email = getEmail(person)
     const department = getDepartment(person)
@@ -132,11 +206,15 @@ function renderPersonRow(person: Record<string, unknown>): string {
     if (title) details.push(chalk.yellow(title))
     if (site) details.push(chalk.magenta(site))
     if (id) details.push(chalk.dim(`id:${id}`))
+    for (const field of extraFields) {
+        const value = formatFieldValue(getFieldValue(person, field))
+        if (value) details.push(chalk.green(`${normalizeFieldPath(field)}=${value}`))
+    }
 
     return [chalk.bold(name), details.join('  ')].filter(Boolean).join('  ')
 }
 
-function renderPersonView(person: Record<string, unknown>): string {
+function renderPersonView(person: Record<string, unknown>, extraFields: string[] = []): string {
     const lines: string[] = []
     const name = getDisplayName(person)
     lines.push(chalk.bold(name))
@@ -152,14 +230,22 @@ function renderPersonView(person: Record<string, unknown>): string {
     const site = getSite(person)
     if (site) lines.push(`Site:        ${site}`)
 
+    const extras = extraFields
+        .map((field) => [normalizeFieldPath(field), formatFieldValue(getFieldValue(person, field))])
+        .filter(([, value]) => value.length > 0)
+    if (extras.length > 0) {
+        lines.push('')
+        const width = Math.max(...extras.map(([label]) => label.length)) + 1
+        for (const [label, value] of extras) {
+            lines.push(`${(label + ':').padEnd(width + 1)} ${value}`)
+        }
+    }
+
     return lines.join('\n')
 }
 
 async function listPeople(query: string | undefined, options: PeopleOptions): Promise<void> {
-    const body: Record<string, unknown> = {}
-    if (options.inactive) {
-        body.showInactive = true
-    }
+    const body = buildPeopleSearchBody(options)
 
     const response = await apiPost('/people/search', body)
     let people = extractPeopleList(response)
@@ -180,7 +266,8 @@ async function listPeople(query: string | undefined, options: PeopleOptions): Pr
         })
     }
 
-    outputList(people, options, 'person', renderPersonRow)
+    const extraFields = options.fields ?? []
+    outputList(people, options, 'person', (person) => renderPersonRow(person, extraFields))
 }
 
 function isIdRef(ref: string): boolean {
@@ -196,40 +283,48 @@ function looksLikeRawId(ref: string): boolean {
     return /^\d+$/.test(ref)
 }
 
-async function fetchPersonByIdentifier(id: string): Promise<Record<string, unknown>> {
-    const response = await apiPost(`/people/${id}`, {})
+async function fetchPersonByIdentifier(
+    id: string,
+    fields?: string[],
+): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {}
+    const requestFields = buildRequestFields(fields)
+    if (requestFields) {
+        body.fields = requestFields
+    }
+    const response = await apiPost(`/people/${id}`, body)
     return extractPerson(response)
 }
 
-async function resolvePersonRef(ref: string): Promise<Record<string, unknown>> {
+async function resolvePersonRef(ref: string, fields?: string[]): Promise<Record<string, unknown>> {
     if (isIdRef(ref)) {
-        return fetchPersonByIdentifier(removeIdPrefix(ref))
+        return fetchPersonByIdentifier(removeIdPrefix(ref), fields)
     }
 
     // HiBob API accepts email as an identifier in /people/{identifier}
     if (ref.includes('@')) {
-        return fetchPersonByIdentifier(ref)
+        return fetchPersonByIdentifier(ref, fields)
     }
 
     if (looksLikeRawId(ref)) {
-        return fetchPersonByIdentifier(ref)
+        return fetchPersonByIdentifier(ref, fields)
     }
 
-    const response = await apiPost('/people/search', {})
+    const response = await apiPost('/people/search', buildPeopleSearchBody({ fields }))
     const people = extractPeopleList(response).filter((p) => isActive(p) !== false)
     const lower = ref.toLowerCase()
 
     const exact = people.find((p) => getDisplayName(p).toLowerCase() === lower)
     if (exact) {
         const id = exact.id
-        if (typeof id === 'string' && id) return fetchPersonByIdentifier(id)
+        if (typeof id === 'string' && id) return fetchPersonByIdentifier(id, fields)
         return exact
     }
 
     const partial = people.filter((p) => getDisplayName(p).toLowerCase().includes(lower))
     if (partial.length === 1) {
         const id = partial[0].id
-        if (typeof id === 'string' && id) return fetchPersonByIdentifier(id)
+        if (typeof id === 'string' && id) return fetchPersonByIdentifier(id, fields)
         return partial[0]
     }
     if (partial.length > 1) {
@@ -251,8 +346,9 @@ async function viewPerson(ref: string, options: OutputOptions): Promise<void> {
             formatError('MISSING_REF', 'Person ref is required (name, email, or id:xxx).'),
         )
     }
-    const person = await resolvePersonRef(ref)
-    outputItem(person, options, 'person', renderPersonView)
+    const person = await resolvePersonRef(ref, options.fields)
+    const extraFields = options.fields ?? []
+    outputItem(person, options, 'person', (item) => renderPersonView(item, extraFields))
 }
 
 export function registerPeopleCommand(program: Command): void {
@@ -262,6 +358,11 @@ export function registerPeopleCommand(program: Command): void {
         .argument('[query]', 'Name search (local filter)')
         .option('--department <name>', 'Filter by department (local filter)')
         .option('--inactive', 'Include inactive employees')
+        .option(
+            '--fields <fields>',
+            'Extra HiBob fields to request (comma-separated, repeatable)',
+            parseFieldsOption,
+        )
         .option('--json', 'JSON output (essential fields)')
         .option('--ndjson', 'NDJSON output (essential fields)')
         .option('--full', 'Include all fields in JSON output')
@@ -271,6 +372,11 @@ export function registerPeopleCommand(program: Command): void {
         .command('person')
         .description('View a single employee')
         .argument('<ref>', 'Name, email, or id:xxx')
+        .option(
+            '--fields <fields>',
+            'Extra HiBob fields to request (comma-separated, repeatable)',
+            parseFieldsOption,
+        )
         .option('--json', 'JSON output (essential fields)')
         .option('--ndjson', 'NDJSON output (essential fields)')
         .option('--full', 'Include all fields in JSON output')
@@ -282,12 +388,14 @@ Ref formats:
   user@co.com  Direct lookup by email address
   "Jane Doe"   Name search (exact match preferred, partial if unambiguous)
 
-Use "bob people" to list employees and find id:xxx values.`,
+Use "bob people" to list employees and find id:xxx values.
+${FIELDS_HELP}`,
         )
         .action((id: string, options: OutputOptions) => viewPerson(id, options))
 
     people.addHelpText(
         'after',
-        `\nNote: HiBob search only supports ID/email filters. Name and department filters are applied locally.`,
+        `\nNote: HiBob search only supports ID/email filters. Name and department filters are applied locally.
+${FIELDS_HELP}`,
     )
 }

@@ -68,6 +68,8 @@ bob people
 bob people "john"
 bob people --department "Engineering"
 bob person <id>
+bob people --fields personal.shortBirthDate --json
+bob person <id> --fields personal.shortBirthDate,work.startDate
 
 bob whosout
 bob whosout --from 2024-01-15 --to 2024-01-20
@@ -83,6 +85,10 @@ All list commands support:
 - `--json` - JSON output (essential fields)
 - `--ndjson` - NDJSON output (one JSON object per line)
 - `--full` - Include all fields in JSON output
+
+### Extra fields
+
+HiBob returns a default set of fields unless the request names others. `bob people` and `bob person` accept `--fields` with HiBob field paths (comma-separated or repeated) to request more, for example `personal.shortBirthDate` or `work.startDate`. Requested fields are included in `--json` and `--ndjson` output and shown in the text view. Top-level fields use the `root.` prefix (e.g. `root.firstName`).
 
 ## CI & Releases
 

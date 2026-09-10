@@ -12,6 +12,7 @@ Use this skill when the user wants to query HiBob HR data.
 - `bob people` - List employees
 - `bob people "john"` - Search employees by name (local filter)
 - `bob person <ref>` - View a single employee (name, email, or id:xxx)
+- `bob people --fields <paths>` - Request extra HiBob fields (e.g. `personal.shortBirthDate`); also works with `bob person`
 - `bob whosout` - Who is out of office
 - `bob outtoday` - Who is out today
 - `bob update` - Update CLI to latest version
@@ -29,6 +30,10 @@ All list commands support:
 - `--ndjson` - Newline-delimited JSON
 - `--full` - Include all fields in JSON
 
+## Extra Fields
+
+HiBob only returns a default set of fields. Use `--fields` with HiBob field paths (comma-separated or repeated) to request more, e.g. birthdays or start dates. Requested fields are included in `--json`/`--ndjson` output. Top-level fields use the `root.` prefix.
+
 ## Examples
 
 ```bash
@@ -36,6 +41,8 @@ bob people --json
 bob people "Ava" --department "Engineering"
 bob person "Jane Doe"
 bob person id:12345
+bob people --fields personal.shortBirthDate --json
+bob person "Jane Doe" --fields personal.shortBirthDate,work.startDate
 bob whosout --from 2024-01-15 --to 2024-01-20
 bob outtoday --date 2024-01-15
 ```
